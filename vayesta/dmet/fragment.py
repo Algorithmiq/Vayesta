@@ -48,7 +48,7 @@ class DMETFragment(Fragment):
 
         Parameters
         ----------
-        solver : {'MP2', 'CISD', 'CCSD', 'CCSD(T)', 'FCI'}, optional
+        solver : {'MP2', 'CISD', 'CCSD', 'CCSD(T)', 'FCI', 'VQE'}, optional
             Correlated solver.
 
         Returns

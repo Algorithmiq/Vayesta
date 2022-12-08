@@ -199,7 +199,7 @@ class Embedding:
     # Shadow these in inherited methods:
     Fragment = Fragment
     Options = Options
-    valid_solvers = ['HF', 'MP2', 'CISD', 'CCSD', 'TCCSD', 'FCI', 'FCI-SPIN0', 'FCI-SPIN1', 'Dump']
+    valid_solvers = ['HF', 'MP2', 'CISD', 'CCSD', 'TCCSD', 'FCI', 'FCI-SPIN0', 'FCI-SPIN1', 'Dump', 'VQE']
 
     # Deprecated:
     is_rhf = True

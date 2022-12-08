@@ -8,6 +8,7 @@ from .cisd import CISD_Solver
 from .cisd import UCISD_Solver
 from .fci import FCI_Solver
 from .fci import UFCI_Solver
+from .vqe import VQE_Solver
 from .ebfci import EBFCI_Solver
 from .ebfci import UEBFCI_Solver
 from .ebccsd import EBCCSD_Solver
@@ -37,6 +38,10 @@ def get_solver_class(mf, solver):
         if uhf:
             return UFCI_Solver
         return FCI_Solver
+    if solver == 'VQE':
+        if uhf:
+            raise NotImplementedError
+        return VQE_Solver
     if solver == 'EBFCI':
         if uhf:
             return UEBFCI_Solver

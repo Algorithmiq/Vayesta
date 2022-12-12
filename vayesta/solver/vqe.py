@@ -18,6 +18,9 @@ from .solver import ClusterSolver
 from .cisd import CISD_Solver
 from .cisd import UCISD_Solver
 
+from aurora.chemistry.eos.vqe_scf import Qassolver
+from aurora.chemistry.eos.vqe_scf import qasscf
+
 
 class VQE_Solver(ClusterSolver):
 
@@ -40,8 +43,8 @@ class VQE_Solver(ClusterSolver):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        solver_cls = self.get_solver_class()
-        solver = solver_cls(self.mol)
+        # MK: we need to use extra arguments for our Quasolver to mimic FullCI
+        solver = Qassolver(ncas=self.mol.nbas, nelecas=self.mol.nelec, mol=self.mol)
         self.log.debugv("type(solver)= %r", type(solver))
         # Set options
         if self.opts.init_guess == 'default':
@@ -68,11 +71,6 @@ class VQE_Solver(ClusterSolver):
         self.c0 = None
         self.c1 = None
         self.c2 = None
-
-    def get_solver_class(self):
-        if self.opts.solver_spin:
-            return pyscf.fci.direct_spin1.FCISolver
-        return pyscf.fci.direct_spin0.FCISolver
 
     def reset(self):
         super().reset()
@@ -142,6 +140,7 @@ class VQE_Solver(ClusterSolver):
         t0 = timer()
         #self.solver.verbose = 10
         e_fci, self.civec = self.solver.kernel(heff, eris, self.ncas, self.nelec, ci0=ci0)
+#       e_fci, self.civec = self.solver.kernel(heff, eris, self.ncas, self.nelec )
         if not self.solver.converged:
             self.log.error("FCI not converged!")
         else:

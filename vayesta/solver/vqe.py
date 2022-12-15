@@ -44,7 +44,9 @@ class VQE_Solver(ClusterSolver):
         super().__init__(*args, **kwargs)
 
         # MK: we need to use extra arguments for our Quasolver to mimic FullCI
-        solver = Qassolver(ncas=self.mol.nbas, nelecas=self.mol.nelec, mol=self.mol)
+        # FIXME better way to pass nelecas
+#       solver = Qassolver(ncas=self.mol.nbas, nelecas=self.mol.nelec, mol=self.mol)
+        solver = Qassolver(ncas=self.ncas, nelecas=(2,2), mol=self.mol)
         self.log.debugv("type(solver)= %r", type(solver))
         # Set options
         if self.opts.init_guess == 'default':
@@ -59,6 +61,7 @@ class VQE_Solver(ClusterSolver):
             solver.max_cycle = self.opts.max_cycle
         if self.opts.davidson_only is not None:
             solver.davidson_only = self.opts.davidson_only
+        # MK: is NONE for the example H6 case
         if self.opts.fix_spin:
             value = self.opts.fix_spin_value
             penalty = self.opts.fix_spin_penalty
@@ -139,12 +142,13 @@ class VQE_Solver(ClusterSolver):
 
         t0 = timer()
         #self.solver.verbose = 10
+        # FIXME this call to kernel is the one that kills the solver
         e_fci, self.civec = self.solver.kernel(heff, eris, self.ncas, self.nelec, ci0=ci0)
 #       e_fci, self.civec = self.solver.kernel(heff, eris, self.ncas, self.nelec )
-        if not self.solver.converged:
-            self.log.error("FCI not converged!")
-        else:
-            self.log.debugv("FCI converged.")
+   #    if not self.solver.converged:
+   #        self.log.error("FCI not converged!")
+   #    else:
+   #        self.log.debugv("FCI converged.")
         self.log.timing("Time for FCI: %s", time_string(timer()-t0))
         self.log.debug("E(CAS)= %s", energy_string(e_fci))
         # TODO: This requires the E_core energy (and nuc-nuc repulsion)
@@ -161,6 +165,7 @@ class VQE_Solver(ClusterSolver):
         else:
             self.log.info("FCI: S^2= %.10f  multiplicity= %.10f", s2, mult)
         mo = Orbitals(self.cluster.c_active, occ=self.cluster.nocc_active)
+        # FIXME MK: this could be a problem
         self.wf = FCI_WaveFunction(mo, self.civec)
 
     #def get_cisd_amps(self, civec):

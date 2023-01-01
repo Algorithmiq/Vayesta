@@ -47,6 +47,8 @@ class VQE_Solver(ClusterSolver):
         # FIXME better way to pass nelecas
 #       solver = Qassolver(ncas=self.mol.nbas, nelecas=self.mol.nelec, mol=self.mol)
         solver = Qassolver(ncas=self.ncas, nelecas=(2,2), mol=self.mol)
+#       solver = pyscf.mcscf.mc1step.CASSCF(mf_or_mol=self.mol, ncas=self.ncas, nelecas=self.nelec)
+ #      pyscf.fci.direct_spin1.FCISolver
         self.log.debugv("type(solver)= %r", type(solver))
         # Set options
         if self.opts.init_guess == 'default':
@@ -145,6 +147,7 @@ class VQE_Solver(ClusterSolver):
         # FIXME this call to kernel is the one that kills the solver
         e_fci, self.civec = self.solver.kernel(heff, eris, self.ncas, self.nelec, ci0=ci0)
 #       e_fci, self.civec = self.solver.kernel(heff, eris, self.ncas, self.nelec )
+        # FIXME fix parameter converged
    #    if not self.solver.converged:
    #        self.log.error("FCI not converged!")
    #    else:
@@ -153,8 +156,14 @@ class VQE_Solver(ClusterSolver):
         self.log.debug("E(CAS)= %s", energy_string(e_fci))
         # TODO: This requires the E_core energy (and nuc-nuc repulsion)
         self.e_corr = np.nan
-        self.converged = self.solver.converged
-        self.c0, self.c1, self.c2 = self.get_cisd_amps(self.civec)
+        # FIXME add the converged attribute
+   #    self.converged = self.solver.converged
+   #    self.c0, self.c1, self.c2 = self.get_cisd_amps(self.civec)
+        nocc, nvir = self.cluster.nocc_active, self.cluster.nvir_active
+        self.c0 = 1.00
+        self.c1 = np.zeros((nocc, nvir))
+        self.c2 = np.zeros((nocc, nvir, nocc, nvir))
+
         self.log.info("FCI: weight of reference determinant= %.8g", abs(self.c0))
         s2, mult = self.solver.spin_square(self.civec, self.ncas, self.nelec)
         if not isinstance(self, UVQE_Solver) and (abs(s2) > 1e-8):

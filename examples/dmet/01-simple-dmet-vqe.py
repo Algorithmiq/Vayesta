@@ -22,7 +22,6 @@ fci = pyscf.fci.FCI(mf)
 fci.kernel()
 
 # One-shot DMET
-#                            solver=VQE   need to implem VQE class
 dmet = vayesta.dmet.DMET(mf, solver='VQE', maxiter=1)
 with dmet.sao_fragmentation() as f:
     f.add_atomic_fragment([0,1])

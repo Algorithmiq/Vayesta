@@ -21,6 +21,12 @@ from .cisd import UCISD_Solver
 from aurora.chemistry.eos.vqe_scf import Qassolver
 from aurora.chemistry.eos.vqe_scf import qasscf
 
+from qiskit_nature.mappers.second_quantization import (
+    BravyiKitaevMapper,
+    JordanWignerMapper,
+)
+
+
 
 class VQE_Solver(ClusterSolver):
 
@@ -45,8 +51,24 @@ class VQE_Solver(ClusterSolver):
 
         # MK: we need to use extra arguments for our Quasolver to mimic FullCI
         # FIXME better way to pass nelecas
-#       solver = Qassolver(ncas=self.mol.nbas, nelecas=self.mol.nelec, mol=self.mol)
-        solver = Qassolver(ncas=self.ncas, nelecas=(2,2), mol=self.mol)
+
+	# FIXME rougue prints
+        print("ncas  = %5i" % self.ncas)
+        print("nelec = %5i" % self.nelec)
+
+#       solver = qasscf(
+#           self.mf,
+#           self.ncas,
+#           (self.nelec//2, self.nelec//2),
+#           kernel_max_iters=5,                #number of gates added in ADAPT-VQE before orbital rotation
+#           approx_kernel_max_iters=1,
+#           mapper=JordanWignerMapper(),
+#           pool="fermionic",
+#           method="statevector",
+#       )
+        solver = Qassolver(mol=self.mol, mapper=JordanWignerMapper())
+
+
 #       solver = pyscf.mcscf.mc1step.CASSCF(mf_or_mol=self.mol, ncas=self.ncas, nelecas=self.nelec)
  #      pyscf.fci.direct_spin1.FCISolver
         self.log.debugv("type(solver)= %r", type(solver))
@@ -139,14 +161,15 @@ class VQE_Solver(ClusterSolver):
         if seris_ov is not None:
             eris = get_screened_eris_full(eris, seris_ov, log=self.log)
 
-        if ci0 is None and self.opts.init_guess == 'CISD':
-            ci0 = self.get_cisd_init_guess()
+        #MK: we don't want a CISD init guess now
+#       if ci0 is None and self.opts.init_guess == 'CISD':
+#           ci0 = self.get_cisd_init_guess()
 
         t0 = timer()
         #self.solver.verbose = 10
         # FIXME this call to kernel is the one that kills the solver
-        e_fci, self.civec = self.solver.kernel(heff, eris, self.ncas, self.nelec, ci0=ci0)
-#       e_fci, self.civec = self.solver.kernel(heff, eris, self.ncas, self.nelec )
+#       e_fci, self.civec = self.solver.kernel(heff, eris, self.ncas, (self.nelec//2,self.nelec//2), ci0=ci0)
+        e_fci, self.civec = self.solver.kernel(heff, eris, self.ncas, (self.nelec//2,self.nelec//2) )
         # FIXME fix parameter converged
    #    if not self.solver.converged:
    #        self.log.error("FCI not converged!")

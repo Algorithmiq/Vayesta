@@ -17,6 +17,8 @@ from vayesta.core import spinalg
 from vayesta.core.types.orbitals import *
 from vayesta.core.helper import pack_arrays, unpack_arrays
 
+from aurora.chemistry.eos.vqe_scf import Qassolver
+
 __all__ = [
         'WaveFunction',
         'HF_WaveFunction', 'RHF_WaveFunction', 'UHF_WaveFunction',
@@ -24,6 +26,7 @@ __all__ = [
         'CCSD_WaveFunction', 'RCCSD_WaveFunction', 'UCCSD_WaveFunction',
         'CISD_WaveFunction', 'RCISD_WaveFunction', 'UCISD_WaveFunction',
         'FCI_WaveFunction', 'RFCI_WaveFunction', 'UFCI_WaveFunction',
+        'VQE_WaveFunction',
         ]
 
 class WaveFunction:
@@ -1096,6 +1099,22 @@ def FCI_WaveFunction(mo, ci, **kwargs):
         cls = UFCI_WaveFunction
     return cls(mo, ci, **kwargs)
 
+
+class VQE_WaveFunction(WaveFunction):
+
+    def __init__(self, qas_solver, mo, state):
+        super().__init__(mo)
+        self.qas_solver = qas_solver
+        self.state = state
+
+    def make_rdm1(self):
+        dm1 = Qassolver.make_rdm1(self.qas_solver, state=self.state, norb=self.norb, nelec=self.nelec)
+        return dm1
+
+    def make_rdm2(self):
+        #perhaps there is a way to avoid unnecessary calc. of RDM1 here?
+        _, dm2 = Qassolver.make_rdm12(self.qas_solver, state=self.state, norb=self.norb, nelec=self.nelec)
+        return dm2
 
 if __name__ == '__main__':
 

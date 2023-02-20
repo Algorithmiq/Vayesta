@@ -29,13 +29,28 @@ with dmet.sao_fragmentation() as f:
     f.add_atomic_fragment([4,5])
 dmet.kernel()
 
+print("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ")
+print("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ")
+print("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ")
+
 # Self-consistent DMET
-dmet_sc = vayesta.dmet.DMET(mf, solver='VQE')
+dmet_sc = vayesta.dmet.DMET(mf, solver='VQE', maxiter=7)
 with dmet_sc.sao_fragmentation() as f:
     f.add_atomic_fragment([0,1])
     f.add_atomic_fragment([2,3])
     f.add_atomic_fragment([4,5])
 dmet_sc.kernel()
+
+#          |  E(corr)=                  -0.01928979 Ha
+#          |  E(MF)=                    -2.42648134 Ha
+#          |  E(nuc)=                   +2.90097636 Ha
+#          |  E(tot)=                   -2.44577113 Ha
+#Energies
+#========
+#  HF:                         -2.44362848 Ha
+#  FCI:                        -2.87843154 Ha
+#  DMET(1 iteration):          -2.69585884 Ha  (error= 182.6 mHa)
+#  DMET(self-consistent):      -2.44577113 Ha  (error= 432.7 mHa)
 
 print("Energies")
 print("========")

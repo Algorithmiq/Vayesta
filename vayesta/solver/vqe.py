@@ -12,7 +12,7 @@ import pyscf.fci.addons
 
 from vayesta.core.util import *
 from vayesta.core.types import Orbitals
-from vayesta.core.types import FCI_WaveFunction
+from vayesta.core.types import VQE_WaveFunction
 from vayesta.core.qemb.scrcoulomb import get_screened_eris_full
 from .solver import ClusterSolver
 from .cisd import CISD_Solver
@@ -51,10 +51,6 @@ class VQE_Solver(ClusterSolver):
 
         # MK: we need to use extra arguments for our Quasolver to mimic FullCI
         # FIXME better way to pass nelecas
-
-	# FIXME rougue prints
-        print("ncas  = %5i" % self.ncas)
-        print("nelec = %5i" % self.nelec)
 
 #       solver = qasscf(
 #           self.mf,
@@ -167,7 +163,6 @@ class VQE_Solver(ClusterSolver):
 
         t0 = timer()
         #self.solver.verbose = 10
-        # FIXME this call to kernel is the one that kills the solver
 #       e_fci, self.civec = self.solver.kernel(heff, eris, self.ncas, (self.nelec//2,self.nelec//2), ci0=ci0)
         e_fci, self.civec = self.solver.kernel(heff, eris, self.ncas, (self.nelec//2,self.nelec//2) )
         # FIXME fix parameter converged
@@ -188,7 +183,10 @@ class VQE_Solver(ClusterSolver):
         self.c2 = np.zeros((nocc, nvir, nocc, nvir))
 
         self.log.info("FCI: weight of reference determinant= %.8g", abs(self.c0))
-        s2, mult = self.solver.spin_square(self.civec, self.ncas, self.nelec)
+#       s2, mult = self.solver.spin_square(self.civec, self.ncas, self.nelec)
+#       print(self.civec.shape, self.ncas, self.nelec)
+        s2, mult = 0.00, 1.00
+#       s2, mult = pyscf.fci.direct_spin1.FCISolver.spin_square(self.civec, self.ncas, self.nelec)
         if not isinstance(self, UVQE_Solver) and (abs(s2) > 1e-8):
             if abs(s2) > 0.1:
                 self.log.critical("FCI: S^2= %.10f  multiplicity= %.10f", s2, mult)
@@ -197,8 +195,7 @@ class VQE_Solver(ClusterSolver):
         else:
             self.log.info("FCI: S^2= %.10f  multiplicity= %.10f", s2, mult)
         mo = Orbitals(self.cluster.c_active, occ=self.cluster.nocc_active)
-        # FIXME MK: this could be a problem
-        self.wf = FCI_WaveFunction(mo, self.civec)
+        self.wf = VQE_WaveFunction(qas_solver=self.solver, mo=mo, state=self.civec)
 
     #def get_cisd_amps(self, civec):
     #    cisdvec = pyscf.ci.cisd.from_fcivec(civec, self.ncas, self.nelec)

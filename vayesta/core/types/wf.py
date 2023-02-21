@@ -19,6 +19,8 @@ from vayesta.core.helper import pack_arrays, unpack_arrays
 
 from aurora.chemistry.eos.vqe_scf import Qassolver
 
+from qiskit import QuantumCircuit
+
 __all__ = [
         'WaveFunction',
         'HF_WaveFunction', 'RHF_WaveFunction', 'UHF_WaveFunction',
@@ -1102,16 +1104,16 @@ def FCI_WaveFunction(mo, ci, **kwargs):
 
 class VQE_WaveFunction(WaveFunction):
 
-    def __init__(self, qas_solver, mo, state):
+    def __init__(self, qas_solver: Qassolver, mo: np.ndarray, state: QuantumCircuit) -> None:
         super().__init__(mo)
         self.qas_solver = qas_solver
         self.state = state
 
-    def make_rdm1(self):
+    def make_rdm1(self) -> np.ndarray:
         dm1 = Qassolver.make_rdm1(self.qas_solver, state=self.state, norb=self.norb, nelec=self.nelec)
         return dm1
 
-    def make_rdm2(self):
+    def make_rdm2(self) -> np.ndarray:
         #perhaps there is a way to avoid unnecessary calc. of RDM1 here?
         _, dm2 = Qassolver.make_rdm12(self.qas_solver, state=self.state, norb=self.norb, nelec=self.nelec)
         return dm2

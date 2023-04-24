@@ -36,7 +36,7 @@ class VQE_Solver(ClusterSolver):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        solver = Qassolver(mol=self.mol, mapper=JordanWignerMapper())
+        solver = Qassolver(mol=self.mol, mapper=JordanWignerMapper(), kernel_max_iters=10, approx_kernel_max_iters=1)
         self.log.debugv("type(solver)= %r", type(solver))
         # Set options
         if self.opts.threads is not None:

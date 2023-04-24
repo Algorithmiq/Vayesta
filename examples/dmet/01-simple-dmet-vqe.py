@@ -49,12 +49,19 @@ dmet_sc.kernel()
 #========
 #  HF:                         -2.44362848 Ha
 #  FCI:                        -2.87843154 Ha
-#  DMET(1 iteration):          -2.69585884 Ha  (error= 182.6 mHa)
-#  DMET(self-consistent):      -2.44577113 Ha  (error= 432.7 mHa)
+#  DMET-VQE(1 iteration):          -2.69585884 Ha  (error= 182.6 mHa)
+#  DMET-VQE(1 iteration, it=5,5):  -2.84857242 Ha  (error= 29.9 mHa)
+#  DMET-VQE(self-consistent):      -2.44577113 Ha  (error= 432.7 mHa)
+
+#THIS IS WHEN FCI IS USED FOR THE FRAGMENT SOLVER
+#  HF:                         -2.44362848 Ha
+#  FCI:                        -2.87843154 Ha
+#  DMET-FCI(1 iteration):      -2.87133716 Ha  (error= 7.1 mHa)
+#  DMET-FCI(self-consistent):  -2.87755919 Ha  (error= 0.9 mHa)
 
 print("Energies")
 print("========")
 print("  HF:                    %+16.8f Ha" % mf.e_tot)
 print("  FCI:                   %+16.8f Ha" % fci.e_tot)
-print("  DMET(1 iteration):     %+16.8f Ha  (error= %.1f mHa)" % (dmet.e_tot, 1000*(dmet.e_tot-fci.e_tot)))
-print("  DMET(self-consistent): %+16.8f Ha  (error= %.1f mHa)" % (dmet_sc.e_tot, 1000*(dmet_sc.e_tot-fci.e_tot)))
+print("  DMET-VQE(1 it.):       %+16.8f Ha  (error= %.1f mHa)" % (dmet.e_tot, 1000*(dmet.e_tot-fci.e_tot)))
+print("  DMET-VQE(sc):          %+16.8f Ha  (error= %.1f mHa)" % (dmet_sc.e_tot, 1000*(dmet_sc.e_tot-fci.e_tot)))
